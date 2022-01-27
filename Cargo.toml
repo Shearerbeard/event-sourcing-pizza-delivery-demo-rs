@@ -1,0 +1,14 @@
+[package]
+name = "event-sourcing-pizza-delivery-demo-rs"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+thalo = { version = "0.5.0", features = ["macros"] } 
+thalo-schema = "0.5.0"
+uuid = "0.8"
+
+[build-dependencies]
+esdl = { version = "0.2", features = ["codegen"] }
