@@ -1,8 +1,8 @@
 mod types;
 
+use std::str::FromStr;
+
 use thalo::{aggregate::{TypeId, Aggregate}, include_aggregate};
-use types::{OrderStatus, OrderType, OrderLineItem};
-use std::{vec::Vec, str::FromStr};
 use uuid::Uuid;
 
 include_aggregate!("Order");
@@ -10,9 +10,9 @@ include_aggregate!("Order");
 #[derive(Clone, Debug, Default, PartialEq, TypeId, Aggregate)]
 struct Order {
     id: String,
-    order_status: OrderStatus,
-    line_items: Vec<OrderLineItem>,
-    order_type: OrderType,
+    order_status: types::OrderStatus,
+    line_items: Vec<types::OrderLineItem>,
+    order_type: types::OrderType,
 }
 
 impl OrderCommand for Order {
