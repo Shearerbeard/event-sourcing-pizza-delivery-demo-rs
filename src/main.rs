@@ -2,9 +2,7 @@ mod types;
 
 use thalo::{aggregate::{TypeId, Aggregate}, include_aggregate};
 use types::{OrderStatus, OrderType, OrderLineItem};
-use std::{result::Result, str::FromStr};
-use std::option::Option;
-use std::vec::Vec;
+use std::{vec::Vec, str::FromStr};
 use uuid::Uuid;
 
 include_aggregate!("Order");
@@ -20,12 +18,12 @@ struct Order {
 impl OrderCommand for Order {
     type Error = Error;
 
-
-    fn order_placed(&self, order_type: String, line_items: Vec<LineItem>, address: Option<Address>) -> Result<OrderPlacedEvent,Self::Error> {
+    fn order_placed(&self, order_type: String, line_items: Vec<LineItem>, address: Option<Address>) -> Result<OrderPlacedEvent, Error> {
         if line_items.len() < 1 {
             return Result::Err(Error::OrderCouldNotBePlaced("Must include at least one line item".to_string()))
         } else {
             match order_type.as_str() {
+                // Todo Implement FromStr for order_type and pattern match the enum
                 "Delivery" => {
                     if let Some(_) = address {
                         let event = OrderPlacedEvent {
@@ -36,9 +34,9 @@ impl OrderCommand for Order {
                             order_status: "Preparing".to_string(),
                         };
 
-                        return Result::Ok(event);
+                        return Ok(event);
                     } else {
-                        return Result::Err(Error::OrderCouldNotBePlaced("Address required for Delivery".to_string()));
+                        return Err(Error::OrderCouldNotBePlaced("Address required for Delivery".to_string()));
                     }
                 },
                 "CarryOut" => {
@@ -50,18 +48,18 @@ impl OrderCommand for Order {
                         order_status: "Preparing".to_string(),
                     };
 
-                    return Result::Ok(event);
+                    return Ok(event);
                 },
                 _ => {
-                    return Result::Err(Error::OrderCouldNotBePlaced("Invalid OrderType".to_string()));
+                    return Err(Error::OrderCouldNotBePlaced("Invalid OrderType".to_string()));
                 },
             }
         }
     }
 
 
-    fn order_status_changed(&self, id: String, order_status: String) -> Result<OrderStatusChangedEvent,Self::Error> {
-        match OrderStatus::from_str(&order_status) {
+    fn order_status_changed(&self, id: String, order_status: String) -> Result<OrderStatusChangedEvent, Error> {
+        match types::OrderStatus::from_str(&order_status) {
             Ok(_) => {
                 let event = OrderStatusChangedEvent {
                     id,
@@ -79,7 +77,7 @@ impl OrderCommand for Order {
 
 }
 
-fn apply(order: &mut Order, event: OrderEvent) {
+fn apply(_order: &mut Order, event: OrderEvent) {
     // use OrderEvent::*;
 
     match event {

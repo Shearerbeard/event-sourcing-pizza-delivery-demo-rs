@@ -108,8 +108,7 @@ dependencies = [
 [[package]]
 name = "esdl"
 version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "350fa3483cae7d2a5793d2e8c4aefd06dc17ca1de3d9fdbbd577451a2a0dc0e0"
+source = "git+https://github.com/Shearerbeard/esdl?branch=main#9c68c74c9cb8a928d462d8f7e81b2124f093329f"
 dependencies = [
  "nom",
  "nom-supreme",

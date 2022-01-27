@@ -20,7 +20,6 @@ type LineItem {
     item_id: String!
     quantity: Int!
     notes: String
-    address: Address
 }
 
 type Address {
