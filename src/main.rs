@@ -41,7 +41,7 @@ impl OrderCommand for Order {
                             order_type,
                             address,
                             id: Uuid::new_v4().to_string(),
-                            order_status: "Preparing".to_string(),
+                            order_status: types::OrderStatus::Preparing.to_string(),
                         })
                     } else {
                         Err(Error::OrderCouldNotBePlaced(

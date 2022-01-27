@@ -1,4 +1,5 @@
 use std::str::FromStr;
+use std::fmt;
 
 use serde::{Serialize, Serializer, ser::SerializeStruct};
 use uuid::Uuid;
@@ -82,6 +83,17 @@ impl FromStr for OrderStatus {
             "EnRoute" => Ok(Self::EnRoute),
             "Delivered" => Ok(Self::Delivered),
             _ => Err(())
+        }
+    }
+}
+
+impl std::fmt::Display for OrderStatus {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            &OrderStatus::Preparing => write!(f, "Preparing"),
+            &OrderStatus::InOven => write!(f, "InOven"),
+            &OrderStatus::EnRoute => write!(f, "EnRoute"),
+            &OrderStatus::Delivered => write!(f, "Delivered"),
         }
     }
 }
