@@ -22,9 +22,9 @@ impl OrderCommand for Order {
         if line_items.len() < 1 {
             return Result::Err(Error::OrderCouldNotBePlaced("Must include at least one line item".to_string()))
         } else {
-            match order_type.as_str() {
+            match types::OrderType::from_str(&order_type) {
                 // Todo Implement FromStr for order_type and pattern match the enum
-                "Delivery" => {
+                Ok(types::OrderType::Delivery) => {
                     if let Some(_) = address {
                         let event = OrderPlacedEvent {
                             line_items,
@@ -39,7 +39,7 @@ impl OrderCommand for Order {
                         Err(Error::OrderCouldNotBePlaced("Address required for Delivery".to_string()))
                     }
                 },
-                "CarryOut" => {
+                Ok(types::OrderType::CarryOut) => {
                     let event = OrderPlacedEvent {
                         line_items,
                         order_type,
@@ -50,7 +50,7 @@ impl OrderCommand for Order {
 
                     Ok(event)
                 },
-                _ => {
+                Err(_) => {
                     Err(Error::OrderCouldNotBePlaced("Invalid OrderType".to_string()))
                 },
             }

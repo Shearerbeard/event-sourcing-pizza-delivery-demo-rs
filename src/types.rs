@@ -60,6 +60,18 @@ impl Default for OrderStatus {
     }
 }
 
+impl FromStr for OrderType {
+    type Err = ();
+
+    fn from_str(str: &str) -> Result<Self, Self::Err> {
+        match str {
+            "Delivery" => Ok(Self::Delivery),
+            "Carryout" => Ok(Self::CarryOut),
+            _ => Err(())
+        }
+    }
+}
+
 impl FromStr for OrderStatus {
     type Err = ();
 
