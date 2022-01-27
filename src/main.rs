@@ -34,9 +34,9 @@ impl OrderCommand for Order {
                             order_status: "Preparing".to_string(),
                         };
 
-                        return Ok(event);
+                        Ok(event)
                     } else {
-                        return Err(Error::OrderCouldNotBePlaced("Address required for Delivery".to_string()));
+                        Err(Error::OrderCouldNotBePlaced("Address required for Delivery".to_string()))
                     }
                 },
                 "CarryOut" => {
@@ -48,10 +48,10 @@ impl OrderCommand for Order {
                         order_status: "Preparing".to_string(),
                     };
 
-                    return Ok(event);
+                    Ok(event)
                 },
                 _ => {
-                    return Err(Error::OrderCouldNotBePlaced("Invalid OrderType".to_string()));
+                    Err(Error::OrderCouldNotBePlaced("Invalid OrderType".to_string()))
                 },
             }
         }
@@ -66,11 +66,11 @@ impl OrderCommand for Order {
                     order_status,
                 };
 
-                return Ok(event);
+                Ok(event)
             },
 
             Err(_) => {
-                return Err(Error::OrderStatusCouldNotBeChanged("Incorrect order status".to_string()))
+                Err(Error::OrderStatusCouldNotBeChanged("Incorrect order status".to_string()))
             }
         }
     }
