@@ -30,7 +30,7 @@ impl OrderCommand for Order {
     ) -> Result<OrderPlacedEvent, Error> {
         if line_items.len() < 1 {
             return Result::Err(Error::OrderCouldNotBePlaced(
-                "Must include at least one line item".to_string(),
+                String::from("Must include at least one line item")
             ));
         } else {
             match types::OrderType::from_str(&order_type) {
@@ -45,7 +45,7 @@ impl OrderCommand for Order {
                         })
                     } else {
                         Err(Error::OrderCouldNotBePlaced(
-                            "Address required for Delivery".to_string(),
+                            String::from("Address required for Delivery")
                         ))
                     }
                 }
@@ -57,7 +57,7 @@ impl OrderCommand for Order {
                     order_status: "Preparing".to_string(),
                 }),
                 Err(_) => Err(Error::OrderCouldNotBePlaced(
-                    "Invalid OrderType".to_string(),
+                    String::from("Invalid OrderType")
                 )),
             }
         }
@@ -71,7 +71,7 @@ impl OrderCommand for Order {
         match types::OrderStatus::from_str(&order_status) {
             Ok(_) => Ok(OrderStatusChangedEvent { id, order_status }),
             Err(_) => Err(Error::OrderStatusCouldNotBeChanged(
-                "Incorrect order status".to_string(),
+                String::from("Incorrect order status"),
             )),
         }
     }
