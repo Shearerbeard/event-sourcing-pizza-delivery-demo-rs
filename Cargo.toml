@@ -7,8 +7,8 @@ edition = "2021"
 
 [dependencies]
 thalo = { version = "0.5.0", features = ["macros"] } 
-thalo-schema = "0.5.0"
-uuid = "0.8"
+uuid =  { version = "0.8", features = ["v4"] }
+serde = { version = "1.0", features = ["derive"] }
 
 [build-dependencies]
 esdl = { version = "0.2", features = ["codegen"] }

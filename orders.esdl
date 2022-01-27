@@ -1,11 +1,11 @@
 aggregate Order {
-    order_placed(order_type: String!, line_items: [OrderLineItem!], address: Address): OrderPlaced!
+    order_placed(order_type: String!, line_items: [LineItem!]!, address: Address): OrderPlaced!
     order_status_changed(id: String!, order_status: String!): OrderStatusChanged!
 }
 
 event OrderPlaced {
     id: String!
-    line_items: [OrderLineItem!]
+    line_items: [LineItem!]!
     order_type: String!
     order_status: String!
     address: Address
@@ -16,7 +16,7 @@ event OrderStatusChanged {
     order_status: String!
 }
 
-type OrderLineItem {
+type LineItem {
     item_id: String!
     quantity: Int!
     notes: String
