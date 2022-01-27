@@ -10,14 +10,14 @@ pub struct OrderLineItem {
     notes: Option<String>,
 }
 
-// #[derive(Clone, Debug, PartialEq, Serialize)]
-// pub struct Address {
-//     address_1: String,
-//     address_2: Option<String>,
-//     city: String,
-//     state: String,
-//     zip: String,
-// }
+#[derive(Clone, Debug, PartialEq, Serialize)]
+pub struct Address {
+    address_1: String,
+    address_2: Option<String>,
+    city: String,
+    state: String,
+    zip: String,
+}
 
 
 #[derive(Clone, Debug, PartialEq, Serialize)]
