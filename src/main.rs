@@ -25,15 +25,35 @@ impl OrderCommand for Order {
         if line_items.len() < 1 {
             return Result::Err(Error::OrderCouldNotBePlaced("Must include at least one line item".to_string()))
         } else {
-            let event = OrderPlacedEvent {
-                line_items,
-                order_type,
-                address,
-                id: Uuid::new_v4().to_string(),
-                order_status: "Preparing".to_string(),
-            };
+            match order_type.as_str() {
+                "Delivery" => {
+                    if let Some(_) = address {
+                        let event = OrderPlacedEvent {
+                            line_items,
+                            order_type,
+                            address,
+                            id: Uuid::new_v4().to_string(),
+                            order_status: "Preparing".to_string(),
+                        };
+                    } else {
+                        return Result::Err(Error::OrderCouldNotBePlaced("Address required for Delivery".to_string()));
+                    }
+                },
+                "CarryOut" => {
+                    let event = OrderPlacedEvent {
+                        line_items,
+                        order_type,
+                        address,
+                        id: Uuid::new_v4().to_string(),
+                        order_status: "Preparing".to_string(),
+                    };
 
-            return Result::Ok(event)
+                    return Result::Ok(event);
+                },
+                _ => {
+                    return Result::Err(Error::OrderCouldNotBePlaced("Invalid OrderType".to_string()));
+                },
+            }
         }
     }
 
@@ -55,6 +75,14 @@ impl OrderCommand for Order {
         }
     }
 
+}
+
+fn apply(order: &mut Order, event: OrderEvent) {
+    // use OrderEvent::*;
+
+    match event {
+        _ => ()
+    }
 }
 
 pub enum Error {
