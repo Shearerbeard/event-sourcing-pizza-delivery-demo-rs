@@ -35,6 +35,8 @@ impl OrderCommand for Order {
                             id: Uuid::new_v4().to_string(),
                             order_status: "Preparing".to_string(),
                         };
+
+                        return Result::Ok(event);
                     } else {
                         return Result::Err(Error::OrderCouldNotBePlaced("Address required for Delivery".to_string()));
                     }
