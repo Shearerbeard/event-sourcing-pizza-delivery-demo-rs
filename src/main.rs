@@ -66,11 +66,11 @@ impl OrderCommand for Order {
                     order_status,
                 };
 
-                return Result::Ok(event);
+                return Ok(event);
             },
 
             Err(_) => {
-                return Result::Err(Error::OrderStatusCouldNotBeChanged("Incorrect order status".to_string()))
+                return Err(Error::OrderStatusCouldNotBeChanged("Incorrect order status".to_string()))
             }
         }
     }
