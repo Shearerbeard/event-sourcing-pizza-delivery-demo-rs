@@ -77,11 +77,16 @@ impl OrderCommand for Order {
     }
 }
 
-fn apply(_order: &mut Order, event: OrderEvent) {
-    // use OrderEvent::*;
-
+fn apply(order: &mut Order, event: OrderEvent) {
     match event {
-        _ => (),
+        OrderEvent::OrderPlaced(e)=> {
+            order.id = e.id;
+            order.order_status = types::OrderStatus::from_str(&e.order_status).unwrap();
+            order.order_type = types::OrderType::from_str(&e.order_type).unwrap();
+            // order.address = e.address;
+            // order.line_items = e.line_items;
+        },
+        _ => ()
     }
 }
 
