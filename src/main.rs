@@ -80,11 +80,21 @@ impl OrderCommand for Order {
 fn apply(order: &mut Order, event: OrderEvent) {
     match event {
         OrderEvent::OrderPlaced(e)=> {
+            let address : Option<types::Address> = match e.address {
+                Some(a) => Some(types::Address {
+                    address_1: a.address_1,
+                    address_2: a.address_2,
+                    city: a.city,
+                    state: a.state,
+                    zip: a.zip
+                }),
+                None => None
+            };
+
             order.id = e.id;
             order.order_status = types::OrderStatus::from_str(&e.order_status).unwrap();
             order.order_type = types::OrderType::from_str(&e.order_type).unwrap();
-            // order.address = e.address;
-            // order.line_items = e.line_items;
+            order.address = address;
         },
         _ => ()
     }
