@@ -38,9 +38,10 @@ impl OrderCommand for Order {
         }
 
         let order_type_enum = types::OrderType::from_str(&order_type)
-            .map_err(|_| Error::OrderCouldNotBePlaced(String::from(
-                "Order ",
-            )))?;
+            .map_err(|_| {
+                let msg = format!("{:?} could not be converted to OrderStatus!", order_type);
+                return Error::OrderCouldNotBePlaced(String::from(msg))
+            })?;
 
         match order_type_enum {
             types::OrderType::Delivery => {
@@ -75,7 +76,7 @@ impl OrderCommand for Order {
     ) -> Result<OrderStatusChangedEvent, Error> {
         let _ = types::OrderStatus::from_str(&order_status)
             .map_err(|_| {
-                let msg = format!("{:?} could not be converted to OrderStatus!", order_status) ;
+                let msg = format!("{:?} could not be converted to OrderStatus!", order_status);
                 return Error::OrderStatusCouldNotBeChanged(String::from(msg));
             })?;
 
