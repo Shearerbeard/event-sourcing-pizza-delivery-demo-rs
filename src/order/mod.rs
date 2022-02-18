@@ -1,3 +1,3 @@
 pub mod types;
 pub mod aggregate;
-// pub mod projection;
+pub mod projection;
