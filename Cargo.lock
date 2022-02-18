@@ -120,6 +120,7 @@ dependencies = [
 name = "event-sourcing-pizza-delivery-demo-rs"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
  "esdl",
  "serde",
  "thalo",

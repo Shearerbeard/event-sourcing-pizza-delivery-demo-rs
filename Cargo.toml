@@ -9,6 +9,7 @@ edition = "2021"
 thalo = { version = "0.5.0", features = ["macros"] } 
 uuid =  { version = "0.8", features = ["v4"] }
 serde = { version = "1.0", features = ["derive"] }
+async-trait = "0.1.52"
 
 [build-dependencies]
 esdl = { git = "https://github.com/Shearerbeard/esdl", branch = "main", features = ["codegen"] }
