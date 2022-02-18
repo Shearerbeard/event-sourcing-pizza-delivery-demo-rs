@@ -1,14 +1,12 @@
-use std::str::FromStr;
+use crate::order::types;
+use std::{str::FromStr, fmt::format};
 use thalo::{
     aggregate::{Aggregate, TypeId},
     include_aggregate,
 };
-use crate::order::types;
 use uuid::Uuid;
 
-
-include_aggregate !("Order");
-
+include_aggregate!("Order");
 
 #[derive(Clone, Debug, Default, PartialEq, TypeId, Aggregate)]
 struct Order {
@@ -17,6 +15,11 @@ struct Order {
     line_items: Vec<types::OrderLineItem>,
     order_type: types::OrderType,
     address: Option<types::Address>,
+}
+
+pub enum Error {
+    OrderCouldNotBePlaced(String),
+    OrderStatusCouldNotBeChanged(String),
 }
 
 impl OrderCommand for Order {
@@ -32,34 +35,36 @@ impl OrderCommand for Order {
             return Result::Err(Error::OrderCouldNotBePlaced(String::from(
                 "Must include at least one line item",
             )));
-        } else {
-            match types::OrderType::from_str(&order_type) {
-                Ok(types::OrderType::Delivery) => {
-                    if let Some(_) = address {
-                        Ok(OrderPlacedEvent {
-                            line_items,
-                            order_type,
-                            address,
-                            id: Uuid::new_v4().to_string(),
-                            order_status: types::OrderStatus::Preparing.to_string(),
-                        })
-                    } else {
-                        Err(Error::OrderCouldNotBePlaced(String::from(
-                            "Address required for Delivery",
-                        )))
-                    }
+        }
+
+        let order_type_enum = types::OrderType::from_str(&order_type)
+            .map_err(|_| Error::OrderCouldNotBePlaced(String::from(
+                "Order ",
+            )))?;
+
+        match order_type_enum {
+            types::OrderType::Delivery => {
+                if let Some(_) = address {
+                    Ok(OrderPlacedEvent {
+                        line_items,
+                        order_type,
+                        address,
+                        id: Uuid::new_v4().to_string(),
+                        order_status: types::OrderStatus::Preparing.to_string(),
+                    })
+                } else {
+                    Err(Error::OrderCouldNotBePlaced(String::from(
+                        "Address required for Delivery",
+                    )))
                 }
-                Ok(types::OrderType::CarryOut) => Ok(OrderPlacedEvent {
-                    line_items,
-                    order_type,
-                    address,
-                    id: Uuid::new_v4().to_string(),
-                    order_status: "Preparing".to_string(),
-                }),
-                Err(_) => Err(Error::OrderCouldNotBePlaced(String::from(
-                    "Invalid OrderType",
-                ))),
             }
+            types::OrderType::CarryOut => Ok(OrderPlacedEvent {
+                line_items,
+                order_type,
+                address,
+                id: Uuid::new_v4().to_string(),
+                order_status: "Preparing".to_string(),
+            }),
         }
     }
 
@@ -68,12 +73,13 @@ impl OrderCommand for Order {
         id: String,
         order_status: String,
     ) -> Result<OrderStatusChangedEvent, Error> {
-        match types::OrderStatus::from_str(&order_status) {
-            Ok(_) => Ok(OrderStatusChangedEvent { id, order_status }),
-            Err(_) => Err(Error::OrderStatusCouldNotBeChanged(String::from(
-                "Incorrect order status",
-            ))),
-        }
+        let _ = types::OrderStatus::from_str(&order_status)
+            .map_err(|_| {
+                let msg = format!("{:?} could not be converted to OrderStatus!", order_status) ;
+                return Error::OrderStatusCouldNotBeChanged(String::from(msg));
+            })?;
+
+        Ok(OrderStatusChangedEvent { id, order_status })
     }
 }
 
@@ -88,7 +94,6 @@ fn apply(order: &mut Order, event: OrderEvent) {
                     state,
                     zip,
                 }) => Some(types::Address {
-
                     address_1,
                     address_2,
                     city,
@@ -108,9 +113,4 @@ fn apply(order: &mut Order, event: OrderEvent) {
             order.order_status = order_status;
         }
     }
-}
-
-pub enum Error {
-    OrderCouldNotBePlaced(String),
-    OrderStatusCouldNotBeChanged(String),
 }
