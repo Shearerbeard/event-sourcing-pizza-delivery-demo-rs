@@ -1,6 +1,6 @@
 use eventstore::{Client, ClientSettings, ClientSettingsParseError};
 use order::aggregate::Order;
-use thalo::event_store::EventStore;
+use thalo::{event_store::EventStore, aggregate::Aggregate};
 use thalo_eventstoredb::ESDBEventStore;
 
 use crate::order::aggregate;

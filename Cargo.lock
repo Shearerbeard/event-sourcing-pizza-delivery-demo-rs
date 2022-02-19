@@ -1377,7 +1377,6 @@ dependencies = [
 [[package]]
 name = "thalo"
 version = "0.5.0"
-source = "git+https://github.com/Shearerbeard/thalo?branch=thalo-eventstoredb#0c291cd884b756e1bf87a729477ebdff8e7514e1"
 dependencies = [
  "async-stream",
  "async-trait",
@@ -1394,7 +1393,6 @@ dependencies = [
 [[package]]
 name = "thalo-eventstoredb"
 version = "0.5.0"
-source = "git+https://github.com/Shearerbeard/thalo?branch=thalo-eventstoredb#0c291cd884b756e1bf87a729477ebdff8e7514e1"
 dependencies = [
  "async-trait",
  "chrono",
@@ -1411,7 +1409,6 @@ dependencies = [
 [[package]]
 name = "thalo-macros"
 version = "0.5.0"
-source = "git+https://github.com/Shearerbeard/thalo?branch=thalo-eventstoredb#0c291cd884b756e1bf87a729477ebdff8e7514e1"
 dependencies = [
  "better-bae",
  "heck 0.4.0",

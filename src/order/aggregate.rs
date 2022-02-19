@@ -23,18 +23,6 @@ pub enum Error {
     OrderStatusCouldNotBeChanged(String),
 }
 
-impl Order {
-    pub fn new(id: String) -> Self {
-        Self {
-            id,
-            order_status: types::OrderStatus::Preparing,
-            line_items: vec![],
-            order_type: types::OrderType::CarryOut,
-            address: None
-        }
-    }
-}
-
 impl OrderCommand for Order {
     type Error = Error;
 
