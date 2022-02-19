@@ -6,10 +6,18 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-thalo = { version = "0.5.0", features = ["macros"] } 
-uuid =  { version = "0.8", features = ["v4"] }
-serde = { version = "1.0", features = ["derive"] }
 async-trait = "0.1.52"
+eventstore = "2.0.0-alpha.2"
+serde = { version = "1.0", features = ["derive"] }
+thalo = { features = ["macros"], git = "https://github.com/Shearerbeard/thalo", branch = "thalo-eventstoredb" } 
+thalo-eventstoredb = { git = "https://github.com/Shearerbeard/thalo", branch = "thalo-eventstoredb", features = ["debug"] }
+tokio = { version = "1.15", features = [
+  "macros",
+  "rt",
+  "rt-multi-thread",
+  "sync",
+]}
+uuid =  { version = "0.8", features = ["v4"] }
 
 [build-dependencies]
 esdl = { git = "https://github.com/Shearerbeard/esdl", branch = "main", features = ["codegen"] }

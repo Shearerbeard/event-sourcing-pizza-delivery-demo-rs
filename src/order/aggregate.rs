@@ -1,5 +1,5 @@
 use crate::order::types;
-use std::{str::FromStr, fmt::format};
+use std::{str::FromStr};
 use thalo::{
     aggregate::{Aggregate, TypeId},
     include_aggregate,
@@ -9,7 +9,7 @@ use uuid::Uuid;
 include_aggregate!("Order");
 
 #[derive(Clone, Debug, Default, PartialEq, TypeId, Aggregate)]
-struct Order {
+pub struct Order {
     id: String,
     order_status: types::OrderStatus,
     line_items: Vec<types::OrderLineItem>,
@@ -17,9 +17,22 @@ struct Order {
     address: Option<types::Address>,
 }
 
+#[derive(Clone, Debug)]
 pub enum Error {
     OrderCouldNotBePlaced(String),
     OrderStatusCouldNotBeChanged(String),
+}
+
+impl Order {
+    pub fn new(id: String) -> Self {
+        Self {
+            id,
+            order_status: types::OrderStatus::Preparing,
+            line_items: vec![],
+            order_type: types::OrderType::CarryOut,
+            address: None
+        }
+    }
 }
 
 impl OrderCommand for Order {
@@ -84,7 +97,7 @@ impl OrderCommand for Order {
     }
 }
 
-fn apply(order: &mut Order, event: OrderEvent) {
+pub fn apply(order: &mut Order, event: OrderEvent) {
     match event {
         OrderEvent::OrderPlaced(e) => {
             let address: Option<types::Address> = match e.address {
