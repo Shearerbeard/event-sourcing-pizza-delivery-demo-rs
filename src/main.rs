@@ -1,6 +1,6 @@
-use eventstore::{Client, ClientSettings, ClientSettingsParseError};
-use order::aggregate::Order;
-use thalo::{event_store::EventStore, aggregate::Aggregate};
+use eventstore::{Client, ClientSettings};
+use order::aggregate::{Order, OrderCommand};
+use thalo::event_store::EventStore;
 use thalo_eventstoredb::ESDBEventStore;
 
 use crate::order::aggregate;
@@ -31,22 +31,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("EXISTS");
     } else {
         println!("DOES NOT EXIST... CREATING");
-        // let order = Order::new(order_id);
-        let cmd = move |s: &Order| {
-            aggregate::OrderCommand::order_placed(
-                s,
-                "Carryout".to_string(),
-                [aggregate::LineItem {
-                    item_id: "1".to_string(),
-                    quantity: 1,
-                    notes: None,
-                }]
-                .to_vec(),
-                None,
-            )
-        };
-
-        let event = event_store.execute(order_id, cmd).await;
+        let event = event_store
+            .execute(order_id, |s: &Order| {
+                s.order_placed(
+                    "Carryout".to_string(),
+                    vec![aggregate::LineItem {
+                        item_id: "1".to_string(),
+                        quantity: 1,
+                        notes: None,
+                    }],
+                    None,
+                )
+            })
+            .await;
 
         match event {
             Ok(event) => println!("GOT EVENT! {:?}", event),
