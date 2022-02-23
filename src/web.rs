@@ -1,7 +1,14 @@
 use actix_web::{get, post, HttpResponse, Responder, web};
 use serde::{Serialize, Deserialize};
+use thalo_eventstoredb::ESDBEventStore;
 
 use crate::order::aggregate;
+
+#[derive(Clone)]
+pub struct WebServer {
+    pub event_store: ESDBEventStore,
+    // projection: OrderProjection
+}
 
 #[derive(Serialize, Deserialize, Debug)]
 struct PlaceOrderRequest {
@@ -11,11 +18,11 @@ struct PlaceOrderRequest {
 }
 
 #[post("/order")]
-async fn place_order(order: web::Json<PlaceOrderRequest>) -> impl Responder {
+async fn place_order(order: web::Json<PlaceOrderRequest>, data: web::Data<WebServer>) -> impl Responder {
     HttpResponse::Ok().body(format!("Order: {order:?}", order=order))
 }
 
 #[get("/order")]
-async fn get_orders() -> impl Responder {
+async fn get_orders(data: web::Data<WebServer>) -> impl Responder {
     HttpResponse::Ok().body("All orders!")
 }
