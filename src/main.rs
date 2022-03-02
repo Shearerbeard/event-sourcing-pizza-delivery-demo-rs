@@ -1,5 +1,6 @@
-use actix_web::{HttpServer, App};
+use actix_web::{App, HttpServer};
 use eventstore::{Client, ClientSettings};
+use order::projection::OrderProjection;
 use thalo_eventstoredb::ESDBEventStore;
 use web::WebServer;
 
@@ -54,19 +55,17 @@ mod web;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let settings = "esdb://localhost:2113?tls=false"
-        .parse::<ClientSettings>()
-    // .map_err(Error::ClientSettingsParseError)
-        .unwrap();
-    let client = Client::new(settings).unwrap();
-    let event_store = ESDBEventStore::new(client);
-    let state = WebServer {
-        event_store: event_store.clone()
-    };
-
     HttpServer::new(move || {
+        let settings = "esdb://localhost:2113?tls=false"
+            .parse::<ClientSettings>()
+            // .map_err(Error::ClientSettingsParseError)
+            .unwrap();
+
         App::new()
-            .app_data(state.clone())
+            .app_data(WebServer {
+                event_store: ESDBEventStore::new(Client::new(settings.clone()).unwrap()),
+                orders_projection: OrderProjection::default(),
+            })
             .service(web::place_order)
             .service(web::get_orders)
     })

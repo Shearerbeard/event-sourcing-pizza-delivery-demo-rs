@@ -18,7 +18,7 @@ pub struct OrderProjection {
     view: Mutex<HashMap<String, OrderView>>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct OrderView {
     id: String,
     order_status: OrderStatus,
@@ -73,6 +73,11 @@ impl OrderProjection {
         if let Some(mut order) = view.get_mut(&id) {
             order.order_status = OrderStatus::from_str(&order_status).unwrap()
         }
+    }
+
+    pub fn get_all(&self) -> Vec<OrderView> {
+        let view = self.view.lock().unwrap();
+        view.clone().into_iter().map(|(_k, v)| v.clone()).collect::<Vec<OrderView>>()
     }
 }
 
