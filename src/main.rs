@@ -1,13 +1,7 @@
-use std::borrow::Borrow;
-
 use actix_web::{HttpServer, App};
 use eventstore::{Client, ClientSettings};
-use order::aggregate::{Order, OrderCommand};
-use thalo::event_store::EventStore;
 use thalo_eventstoredb::ESDBEventStore;
 use web::WebServer;
-
-use crate::order::aggregate;
 
 mod order;
 mod web;

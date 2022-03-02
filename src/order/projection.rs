@@ -1,14 +1,14 @@
-use std::{collections::HashMap, sync::Mutex, str::FromStr};
+use std::{collections::HashMap, str::FromStr, sync::Mutex};
 
 use crate::order::aggregate;
 use async_trait::async_trait;
-use chrono::{DateTime, Utc, FixedOffset};
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use thalo::event::{EventEnvelope, EventHandler};
 
 use super::{
     aggregate::{OrderEvent, OrderPlacedEvent, OrderStatusChangedEvent},
-    types::{Address, OrderLineItem, OrderStatus, OrderType},
+    types::{OrderAddress, OrderLineItem, OrderStatus, OrderType},
 };
 
 pub struct Error();
@@ -22,9 +22,9 @@ pub struct OrderProjection {
 pub struct OrderView {
     id: String,
     order_status: OrderStatus,
-    // line_items: Vec<OrderLineItem>,
+    line_items: Vec<OrderLineItem>,
     order_type: OrderType,
-    // address: Option<Address>,
+    address: Option<OrderAddress>,
     sub_total: i64,
     tax: i64,
     total: i64,
@@ -36,32 +36,43 @@ impl OrderProjection {
     fn handle_order_placed(
         &self,
         id: String,
-        _line_items: Vec<aggregate::LineItem>,
+        line_items: Vec<aggregate::LineItem>,
         order_type: String,
-        _address: Option<aggregate::Address>,
+        address: Option<aggregate::Address>,
         order_status: String,
         last_modified: DateTime<Utc>,
         position: usize,
     ) {
         let mut view = self.view.lock().unwrap();
-        let order_id = id.to_owned();
+        let line_items_2 = line_items.clone();
+        let key = id.to_owned();
+        let sub_total = line_items_2.into_iter().fold(0, |acc, item| acc + item.price);
+        let tax = (sub_total as f64 * 0.05).floor() as i64;
+        let total = sub_total + tax;
 
-        view.entry(id).or_insert(OrderView {
-            id: order_id,
-            // line_items,
-            // address,
-            sub_total: 0,
-            tax: 0,
-            total: 0,
+        view.entry(key).or_insert(OrderView {
+            id,
+            sub_total,
+            tax,
+            total,
             last_modified,
             position,
+            line_items: line_items
+                .into_iter()
+                .map(OrderLineItem::from_event_line_item)
+                .collect(),
+            address: address.map(OrderAddress::from_event_address),
             order_status: OrderStatus::from_str(&order_status).unwrap(),
             order_type: OrderType::from_str(&order_type).unwrap(),
         });
     }
 
     fn handle_order_status_changed(&self, id: String, order_status: String) {
-        todo!()
+        let mut view = self.view.lock().unwrap();
+
+        if let Some(mut order) = view.get_mut(&id) {
+            order.order_status = OrderStatus::from_str(&order_status).unwrap()
+        }
     }
 }
 

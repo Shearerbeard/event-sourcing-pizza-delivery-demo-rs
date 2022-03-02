@@ -2,17 +2,18 @@ use std::fmt;
 use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
+use super::aggregate::{LineItem, Address};
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct OrderLineItem {
-    item_id: Uuid,
-    quantity: i32,
+    item_id: String,
+    quantity: i64,
     notes: Option<String>,
+    price: i64,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct Address {
+pub struct OrderAddress {
     pub address_1: String,
     pub address_2: Option<String>,
     pub city: String,
@@ -79,6 +80,29 @@ impl std::fmt::Display for OrderStatus {
             &OrderStatus::InOven => write!(f, "InOven"),
             &OrderStatus::EnRoute => write!(f, "EnRoute"),
             &OrderStatus::Delivered => write!(f, "Delivered"),
+        }
+    }
+}
+
+impl OrderLineItem {
+    pub fn from_event_line_item(LineItem{ item_id, quantity, notes, price }: LineItem) -> Self {
+        Self {
+            quantity,
+            notes,
+            item_id,
+            price,
+        }
+    }
+}
+
+impl OrderAddress {
+    pub fn from_event_address(Address{ address_1, address_2, city, state, zip }: Address) -> Self {
+        Self {
+            address_1,
+            address_2,
+            city,
+            state,
+            zip,
         }
     }
 }
