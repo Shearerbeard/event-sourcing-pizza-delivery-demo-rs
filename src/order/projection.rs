@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::Mutex};
+use std::{collections::HashMap, sync::Mutex, str::FromStr};
 
 use crate::order::aggregate;
 use async_trait::async_trait;
@@ -22,9 +22,9 @@ pub struct OrderProjection {
 pub struct OrderView {
     id: String,
     order_status: OrderStatus,
-    line_items: Vec<OrderLineItem>,
+    // line_items: Vec<OrderLineItem>,
     order_type: OrderType,
-    address: Option<Address>,
+    // address: Option<Address>,
     sub_total: i64,
     tax: i64,
     total: i64,
@@ -36,12 +36,27 @@ impl OrderProjection {
     fn handle_order_placed(
         &self,
         id: String,
-        line_items: Vec<aggregate::LineItem>,
+        _line_items: Vec<aggregate::LineItem>,
         order_type: String,
-        address: Option<aggregate::Address>,
+        _address: Option<aggregate::Address>,
         order_status: String,
+        last_modified: DateTime<Utc>,
+        position: usize,
     ) {
-        todo!()
+        let mut view = self.view.lock().unwrap();
+
+        view.entry(id).or_insert(OrderView {
+            id,
+            // line_items,
+            // address,
+            order_status: OrderStatus::from_str(&order_status).unwrap(),
+            order_type: OrderType::from_str(&order_type).unwrap(),
+            sub_total: 0,
+            tax: 0,
+            total: 0,
+            last_modified: last_modified,
+            last_position: position
+        });
     }
 
     fn handle_order_status_changed(&self, id: String, order_status: String) {
@@ -57,8 +72,8 @@ impl EventHandler<OrderEvent> for OrderProjection {
         &self,
         EventEnvelope {
             aggregate_id,
-            // sequence,
-            // created_at,
+            sequence,
+            created_at,
             event,
             ..
         }: EventEnvelope<OrderEvent>,
@@ -76,6 +91,8 @@ impl EventHandler<OrderEvent> for OrderProjection {
                 order_type,
                 address,
                 order_status,
+                created_at,
+                sequence,
             )),
             OrderEvent::OrderStatusChanged(OrderStatusChangedEvent { order_status, .. }) => {
                 Ok(self.handle_order_status_changed(aggregate_id, order_status))
