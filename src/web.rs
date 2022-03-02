@@ -18,11 +18,11 @@ struct PlaceOrderRequest {
 }
 
 #[post("/order")]
-async fn place_order(order: web::Json<PlaceOrderRequest>, data: web::Data<WebServer>) -> impl Responder {
+async fn place_order(order: web::Json<PlaceOrderRequest>, _data: web::Data<WebServer>) -> impl Responder {
     HttpResponse::Ok().body(format!("Order: {order:?}", order=order))
 }
 
 #[get("/order")]
-async fn get_orders(data: web::Data<WebServer>) -> impl Responder {
+async fn get_orders(_data: web::Data<WebServer>) -> impl Responder {
     HttpResponse::Ok().body("All orders!")
 }

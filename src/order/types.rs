@@ -2,20 +2,20 @@ use std::str::FromStr;
 use std::fmt;
 
 use serde::{
-    Serialize,
+    Serialize, Deserialize,
     // Serializer,
     // ser::SerializeStruct
 };
 use uuid::Uuid;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct OrderLineItem {
     item_id: Uuid,
     quantity: i32,
     notes: Option<String>,
 }
 
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Address {
     pub address_1: String,
     pub address_2: Option<String>,
@@ -25,14 +25,14 @@ pub struct Address {
 }
 
 
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum OrderType {
     Delivery,
     CarryOut,
 }
 
 
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum OrderStatus {
     Preparing,
     InOven,
