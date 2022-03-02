@@ -1,11 +1,7 @@
-use std::str::FromStr;
 use std::fmt;
+use std::str::FromStr;
 
-use serde::{
-    Serialize, Deserialize,
-    // Serializer,
-    // ser::SerializeStruct
-};
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -24,13 +20,11 @@ pub struct Address {
     pub zip: String,
 }
 
-
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum OrderType {
     Delivery,
     CarryOut,
 }
-
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum OrderStatus {
@@ -39,19 +33,6 @@ pub enum OrderStatus {
     EnRoute,
     Delivered,
 }
-
-// IMPL
-// impl Serialize for OrderLineItem {
-//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-//     where
-//         S: serde::Serializer {
-//         let mut state: <S as Serializer>::SerializeStruct = serializer.serialize_struct("OrderLineItem", 3)?;
-//         state.serialize_field("item_id", &self.item_id.to_string())?;
-//         state.serialize_field("quantity", &self.quantity)?;
-//         state.serialize_field("notes", &self.notes)?;
-//         state.end()
-//     }
-// }
 
 impl Default for OrderType {
     fn default() -> Self {
@@ -72,7 +53,7 @@ impl FromStr for OrderType {
         match str {
             "Delivery" => Ok(Self::Delivery),
             "Carryout" => Ok(Self::CarryOut),
-            _ => Err(())
+            _ => Err(()),
         }
     }
 }
@@ -86,7 +67,7 @@ impl FromStr for OrderStatus {
             "InOven" => Ok(Self::InOven),
             "EnRoute" => Ok(Self::EnRoute),
             "Delivered" => Ok(Self::Delivered),
-            _ => Err(())
+            _ => Err(()),
         }
     }
 }

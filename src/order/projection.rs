@@ -2,7 +2,7 @@ use std::{collections::HashMap, sync::Mutex, str::FromStr};
 
 use crate::order::aggregate;
 use async_trait::async_trait;
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Utc, FixedOffset};
 use serde::{Deserialize, Serialize};
 use thalo::event::{EventEnvelope, EventHandler};
 
@@ -29,7 +29,7 @@ pub struct OrderView {
     tax: i64,
     total: i64,
     last_modified: DateTime<Utc>,
-    last_position: usize,
+    position: usize,
 }
 
 impl OrderProjection {
@@ -44,18 +44,19 @@ impl OrderProjection {
         position: usize,
     ) {
         let mut view = self.view.lock().unwrap();
+        let order_id = id.to_owned();
 
         view.entry(id).or_insert(OrderView {
-            id,
+            id: order_id,
             // line_items,
             // address,
-            order_status: OrderStatus::from_str(&order_status).unwrap(),
-            order_type: OrderType::from_str(&order_type).unwrap(),
             sub_total: 0,
             tax: 0,
             total: 0,
-            last_modified: last_modified,
-            last_position: position
+            last_modified,
+            position,
+            order_status: OrderStatus::from_str(&order_status).unwrap(),
+            order_type: OrderType::from_str(&order_type).unwrap(),
         });
     }
 
@@ -91,7 +92,7 @@ impl EventHandler<OrderEvent> for OrderProjection {
                 order_type,
                 address,
                 order_status,
-                created_at,
+                created_at.into(),
                 sequence,
             )),
             OrderEvent::OrderStatusChanged(OrderStatusChangedEvent { order_status, .. }) => {
