@@ -10,6 +10,8 @@ pub struct OrderService {
 
 impl OrderService {
     pub fn new(client: Client) -> Self {
+        println!("Calling Order Service Init!");
+
         Self {
             event_store: ESDBEventStore::new(client),
             orders_projection: OrderProjection::default(),
