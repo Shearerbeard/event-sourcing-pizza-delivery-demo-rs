@@ -1,65 +1,76 @@
 use actix_web::{web::Data, App, HttpServer};
+use api::OrderService;
 use eventstore::{
     Client, ClientSettings, PersistentSubscriptionToAllOptions,
     SubscribeToPersistentSubscriptionOptions, SubscriptionFilter,
 };
-use order::{projection::OrderProjection, aggregate::Order};
-use thalo::{event::EventHandler};
-use thalo_eventstoredb::{ESDBEventStore, ESDBEventPayload};
-use web::WebServer;
+use order::aggregate::Order;
+use thalo::event::EventHandler;
+use thalo_eventstoredb::ESDBEventPayload;
 
+mod api;
 mod order;
 mod web;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let settings = "esdb://localhost:2113?tls=false"
-        .parse::<ClientSettings>()
-        .unwrap();
-    let client = Client::new(settings).unwrap();
-    let sub_client = client.clone();
+    let client = Client::new(
+        "esdb://localhost:2113?tls=false"
+            .parse::<ClientSettings>()
+            .unwrap(),
+    )
+    .unwrap();
+
+    println!("Got Client!");
 
     let options = PersistentSubscriptionToAllOptions::default()
         .filter(SubscriptionFilter::on_stream_name().add_prefix("order"));
 
-    let _ = client
+    let res = client
         .clone()
         .create_persistent_subscription_to_all("order-group", &options)
         .await;
 
-    let sub_options = SubscribeToPersistentSubscriptionOptions::default();
-    let mut sub = sub_client.subscribe_to_persistent_subscription_to_all(
-        "order-group",
-        &sub_options,
-    ).await.unwrap();
+    println!("Did create persistent sub? {:?}", res);
 
-    let orders_projection = OrderProjection::default();
+    let service = OrderService::new(client.clone());
+    println!("Service Init!");
+
+    let app_data = Data::new(service);
+    let sub_data = app_data.clone();
 
     tokio::spawn(async move {
+        let sub_options = SubscribeToPersistentSubscriptionOptions::default();
+        let mut sub = client
+            .clone()
+            .subscribe_to_persistent_subscription_to_all("order-group", &sub_options)
+            .await
+            .unwrap();
+
+        println!("Got persistent subscription!");
+
         loop {
             let event = sub.next().await.unwrap();
             let event_data = event.get_original_event();
             let ee = event_data
-                .as_json::<ESDBEventPayload>().unwrap()
-                // .map_err(Error)?
-                .event_envelope::<Order>(event_data.revision as usize).unwrap();
+                .as_json::<ESDBEventPayload>()
+                .unwrap()
+                .event_envelope::<Order>(event_data.revision as usize)
+                .unwrap();
 
-            if let Ok(_) = orders_projection.handle(ee).await {
+            println!("Received new envelope! {:?}", ee);
+
+            if let Ok(_) = sub_data.orders_projection.handle(ee).await {
                 let _ = sub.ack(event).await;
+                println!("Sub Ack!");
             }
         }
     });
 
-
     HttpServer::new(move || {
-        let event_store = ESDBEventStore::new(client.clone());
-        let orders_projection = OrderProjection::default();
-
+        println!("Firing server!");
         App::new()
-            .app_data(Data::new(WebServer {
-                event_store,
-                orders_projection,
-            }))
+            .app_data(app_data.clone())
             .service(web::place_order)
             .service(web::get_orders)
     })
