@@ -1,6 +1,7 @@
 use std::str::FromStr;
 
 use crate::order::types;
+use serde::{Serialize, Deserialize};
 use thalo::{
     aggregate::{Aggregate, TypeId},
     include_aggregate,
@@ -20,7 +21,7 @@ pub struct Order {
     address: Option<types::OrderAddress>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum Error {
     OrderCouldNotBePlaced(String),
     OrderStatusCouldNotBeChanged(String),
@@ -77,6 +78,8 @@ impl OrderCommand for Order {
         id: String,
         order_status: String,
     ) -> Result<OrderStatusChangedEvent, Error> {
+        println!("order_status_changed");
+        println!("{:?}", id);
         let order_status_2 = order_status.clone();
         types::OrderStatus::from_str(&order_status)
             .map(|_| OrderStatusChangedEvent { id, order_status })

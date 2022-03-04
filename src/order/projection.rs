@@ -11,7 +11,9 @@ use super::{
     types::{OrderAddress, OrderLineItem, OrderStatus, OrderType},
 };
 
-pub struct Error();
+pub enum Error {
+    OrderNotFound,
+}
 
 #[derive(Default)]
 pub struct OrderProjection {
@@ -33,6 +35,7 @@ pub struct OrderView {
 }
 
 impl OrderProjection {
+
     fn handle_order_placed(
         &self,
         id: String,
@@ -72,6 +75,16 @@ impl OrderProjection {
 
         if let Some(mut order) = view.get_mut(&id) {
             order.order_status = OrderStatus::from_str(&order_status).unwrap()
+        }
+    }
+
+    pub fn get(&self, id: String) -> Result<OrderView, Error> {
+        let view = self.view.lock().unwrap();
+        let res = view.get(&id);
+
+        match res {
+            Some(order) => Ok(order.clone()),
+            None => Err(Error::OrderNotFound),
         }
     }
 

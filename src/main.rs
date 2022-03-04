@@ -72,7 +72,9 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(app_data.clone())
             .service(web::place_order)
+            .service(web::update_order_status)
             .service(web::get_orders)
+            .service(web::get_order)
     })
     .bind("127.0.0.1:8086")?
     .run()
