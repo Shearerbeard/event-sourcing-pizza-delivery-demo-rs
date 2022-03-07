@@ -75,11 +75,11 @@ impl FromStr for OrderStatus {
 
 impl std::fmt::Display for OrderStatus {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            &OrderStatus::Preparing => write!(f, "Preparing"),
-            &OrderStatus::InOven => write!(f, "InOven"),
-            &OrderStatus::EnRoute => write!(f, "EnRoute"),
-            &OrderStatus::Delivered => write!(f, "Delivered"),
+        match *self {
+            OrderStatus::Preparing => write!(f, "Preparing"),
+            OrderStatus::InOven => write!(f, "InOven"),
+            OrderStatus::EnRoute => write!(f, "EnRoute"),
+            OrderStatus::Delivered => write!(f, "Delivered"),
         }
     }
 }

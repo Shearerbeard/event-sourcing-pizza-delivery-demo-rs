@@ -19,9 +19,9 @@ pub struct OrderService {
 
 #[derive(Debug)]
 pub enum Error {
-    PlaceOrderError(aggregate::Error),
-    EventStoreError(thalo_eventstoredb::Error),
-    NotFoundError,
+    CouldNotPlaceOrder(aggregate::Error),
+    EventStore(thalo_eventstoredb::Error),
+    NotFound,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -60,8 +60,8 @@ impl OrderService {
                 order.order_placed(order_type.clone(), line_items.clone(), address.clone())
             })
             .await
-            .map_err(Error::EventStoreError)?
-            .map_err(Error::PlaceOrderError)
+            .map_err(Error::EventStore)?
+            .map_err(Error::CouldNotPlaceOrder)
     }
 
     pub async fn command_change_order_status(
@@ -73,12 +73,12 @@ impl OrderService {
                 order.order_status_changed(id.clone(), order_status)
             })
             .await
-            .map_err(Error::EventStoreError)?
-            .map_err(Error::PlaceOrderError)
+            .map_err(Error::EventStore)?
+            .map_err(Error::CouldNotPlaceOrder)
     }
 
     pub async fn read_order(&self, id: String) -> Result<OrderView, Error> {
-        self.orders_projection.get(id).map_err(|_| Error::NotFoundError)
+        self.orders_projection.get(id).map_err(|_| Error::NotFound)
     }
 
     pub async fn read_all_orders(&self) -> Result<Vec<OrderView>, Error> {

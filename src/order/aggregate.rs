@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
 use crate::order::types;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use thalo::{
     aggregate::{Aggregate, TypeId},
     include_aggregate,
@@ -36,20 +36,22 @@ impl OrderCommand for Order {
         line_items: Vec<LineItem>,
         address: Option<Address>,
     ) -> Result<OrderPlacedEvent, Error> {
-        if line_items.len() < 1 {
+        if line_items.is_empty() {
             return Result::Err(Error::OrderCouldNotBePlaced(String::from(
                 "Must include at least one line item",
             )));
         }
 
         let order_type_enum = types::OrderType::from_str(&order_type).map_err(|_| {
-            let msg = format!("{:?} could not be converted to OrderStatus!", order_type);
-            return Error::OrderCouldNotBePlaced(String::from(msg));
+            return Error::OrderCouldNotBePlaced(format!(
+                "{:?} could not be converted to OrderStatus!",
+                order_type
+            ));
         })?;
 
         match order_type_enum {
             types::OrderType::Delivery => {
-                if let Some(_) = address {
+                if address.is_some() {
                     Ok(OrderPlacedEvent {
                         line_items,
                         order_type,
@@ -82,11 +84,10 @@ impl OrderCommand for Order {
         types::OrderStatus::from_str(&order_status)
             .map(|_| OrderStatusChangedEvent { id, order_status })
             .map_err(|_| {
-                let msg = format!(
+                Error::OrderStatusCouldNotBeChanged(format!(
                     "{:?} could not be converted to OrderStatus!",
                     order_status_2
-                );
-                return Error::OrderStatusCouldNotBeChanged(String::from(msg));
+                ))
             })
     }
 }

@@ -61,7 +61,7 @@ async fn main() -> std::io::Result<()> {
             println!("Received new envelope! \r\n {:?}", ee);
             println!("--------------------------------------");
 
-            if let Ok(_) = sub_data.orders_projection.handle(ee).await {
+            if sub_data.orders_projection.handle(ee).await.is_ok() {
                 let _ = sub.ack(event).await;
                 println!("Sub Ack!");
             }

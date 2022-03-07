@@ -91,7 +91,7 @@ impl OrderProjection {
 
     pub fn get_all(&self) -> Vec<OrderView> {
         let view = self.view.lock().unwrap();
-        view.clone().into_iter().map(|(_k, v)| v.clone()).collect::<Vec<OrderView>>()
+        view.clone().into_iter().map(|(_k, v)| v).collect::<Vec<OrderView>>()
     }
 }
 
@@ -116,18 +116,22 @@ impl EventHandler<OrderEvent> for OrderProjection {
                 address,
                 order_status,
                 ..
-            }) => Ok(self.handle_order_placed(
-                aggregate_id,
-                line_items,
-                order_type,
-                address,
-                order_status,
-                created_at.into(),
-                sequence,
-            )),
+            }) => {
+                self.handle_order_placed(
+                    aggregate_id,
+                    line_items,
+                    order_type,
+                    address,
+                    order_status,
+                    created_at.into(),
+                    sequence,
+                );
+            },
             OrderEvent::OrderStatusChanged(OrderStatusChangedEvent { order_status, .. }) => {
-                Ok(self.handle_order_status_changed(aggregate_id, order_status, created_at.into(),))
+                self.handle_order_status_changed(aggregate_id, order_status, created_at.into());
             }
+
         }
+        Ok(())
     }
 }
