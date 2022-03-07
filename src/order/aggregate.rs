@@ -109,8 +109,8 @@ pub fn apply(order: &mut Order, event: OrderEvent) {
             order.order_status = types::OrderStatus::from_str(&order_status).unwrap();
             order.order_type = types::OrderType::from_str(&order_type).unwrap();
         }
-        OrderEvent::OrderStatusChanged(e) => {
-            order.order_status = types::OrderStatus::from_str(&e.order_status).unwrap();
+        OrderEvent::OrderStatusChanged(OrderStatusChangedEvent { ref order_status, .. }) => {
+            order.order_status = types::OrderStatus::from_str(order_status).unwrap();
         }
     }
 }
