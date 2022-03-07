@@ -57,8 +57,9 @@ async fn main() -> std::io::Result<()> {
                 .unwrap()
                 .event_envelope::<Order>(event_data.revision as usize)
                 .unwrap();
-
-            println!("Received new envelope! {:?}", ee);
+            println!("--------------------------------------");
+            println!("Received new envelope! \r\n {:?}", ee);
+            println!("--------------------------------------");
 
             if let Ok(_) = sub_data.orders_projection.handle(ee).await {
                 let _ = sub.ack(event).await;

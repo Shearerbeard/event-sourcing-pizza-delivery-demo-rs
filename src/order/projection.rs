@@ -70,11 +70,12 @@ impl OrderProjection {
         });
     }
 
-    fn handle_order_status_changed(&self, id: String, order_status: String) {
+    fn handle_order_status_changed(&self, id: String, order_status: String, last_modified: DateTime<Utc>,) {
         let mut view = self.view.lock().unwrap();
 
         if let Some(mut order) = view.get_mut(&id) {
-            order.order_status = OrderStatus::from_str(&order_status).unwrap()
+            order.order_status = OrderStatus::from_str(&order_status).unwrap();
+            order.last_modified = last_modified;
         }
     }
 
@@ -125,7 +126,7 @@ impl EventHandler<OrderEvent> for OrderProjection {
                 sequence,
             )),
             OrderEvent::OrderStatusChanged(OrderStatusChangedEvent { order_status, .. }) => {
-                Ok(self.handle_order_status_changed(aggregate_id, order_status))
+                Ok(self.handle_order_status_changed(aggregate_id, order_status, created_at.into(),))
             }
         }
     }

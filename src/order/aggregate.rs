@@ -78,8 +78,6 @@ impl OrderCommand for Order {
         id: String,
         order_status: String,
     ) -> Result<OrderStatusChangedEvent, Error> {
-        println!("order_status_changed");
-        println!("{:?}", id);
         let order_status_2 = order_status.clone();
         types::OrderStatus::from_str(&order_status)
             .map(|_| OrderStatusChangedEvent { id, order_status })
@@ -96,22 +94,19 @@ impl OrderCommand for Order {
 pub fn apply(order: &mut Order, event: OrderEvent) {
     match event {
         OrderEvent::OrderPlaced(OrderPlacedEvent {
-            id,
             address,
             line_items,
             order_status,
             order_type,
+            ..
         }) => {
-            *order = Order {
-                id,
-                address: address.map(OrderAddress::from_event_address),
-                line_items: line_items
-                    .into_iter()
-                    .map(OrderLineItem::from_event_line_item)
-                    .collect(),
-                order_status: types::OrderStatus::from_str(&order_status).unwrap(),
-                order_type: types::OrderType::from_str(&order_type).unwrap(),
-            };
+            order.address = address.map(OrderAddress::from_event_address);
+            order.line_items = line_items
+                .into_iter()
+                .map(OrderLineItem::from_event_line_item)
+                .collect();
+            order.order_status = types::OrderStatus::from_str(&order_status).unwrap();
+            order.order_type = types::OrderType::from_str(&order_type).unwrap();
         }
         OrderEvent::OrderStatusChanged(e) => {
             order.order_status = types::OrderStatus::from_str(&e.order_status).unwrap();
