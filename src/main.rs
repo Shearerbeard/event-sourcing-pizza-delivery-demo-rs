@@ -1,9 +1,7 @@
+use actix_cors::Cors;
 use actix_web::{web::Data, App, HttpServer};
 use api::OrderService;
-use eventstore::{
-    Client, ClientSettings, PersistentSubscriptionToAllOptions,
-    SubscribeToPersistentSubscriptionOptions, SubscriptionFilter,
-};
+use eventstore::{Client, ClientSettings, SubscribeToAllOptions, SubscriptionFilter};
 use order::aggregate::Order;
 use thalo::event::EventHandler;
 use thalo_eventstoredb::ESDBEventPayload;
@@ -23,16 +21,6 @@ async fn main() -> std::io::Result<()> {
 
     println!("Got Client!");
 
-    let options = PersistentSubscriptionToAllOptions::default()
-        .filter(SubscriptionFilter::on_stream_name().add_prefix("order"));
-
-    let res = client
-        .clone()
-        .create_persistent_subscription_to_all("order-group", &options)
-        .await;
-
-    println!("Did create persistent sub? {:?}", res);
-
     let service = OrderService::new(client.clone());
     println!("Service Init!");
 
@@ -40,14 +28,12 @@ async fn main() -> std::io::Result<()> {
     let sub_data = app_data.clone();
 
     tokio::spawn(async move {
-        let sub_options = SubscribeToPersistentSubscriptionOptions::default();
-        let mut sub = client
-            .clone()
-            .subscribe_to_persistent_subscription_to_all("order-group", &sub_options)
-            .await
-            .unwrap();
+        let sub_options = SubscribeToAllOptions::default()
+            .filter(SubscriptionFilter::on_stream_name().add_prefix("order"));
 
-        println!("Got persistent subscription!");
+        let mut sub = client.clone().subscribe_to_all(&sub_options).await;
+
+        println!("Got subscription!");
 
         loop {
             let event = sub.next().await.unwrap();
@@ -62,15 +48,21 @@ async fn main() -> std::io::Result<()> {
             println!("--------------------------------------");
 
             if sub_data.orders_projection.handle(ee).await.is_ok() {
-                let _ = sub.ack(event).await;
-                println!("Sub Ack!");
+                // let _ = sub.ack(event).await;
+                println!("Projection handled Sub Event!");
             }
         }
     });
 
     HttpServer::new(move || {
         println!("Firing server!");
+        let cors = Cors::default()
+            .allow_any_origin()
+            .allow_any_method()
+            .allow_any_header();
+
         App::new()
+            .wrap(cors)
             .app_data(app_data.clone())
             .service(web::place_order)
             .service(web::update_order_status)
