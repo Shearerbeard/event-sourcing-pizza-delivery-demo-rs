@@ -12,8 +12,8 @@ async-trait = "0.1.52"
 chrono = "0.4.19"
 eventstore = "2.0.0-alpha.2"
 serde = { version = "1.0", features = ["derive"] }
-thalo = { features = ["macros"], path = "../thalo/thalo" } 
-thalo-eventstoredb = { path = "../thalo/thalo-eventstoredb", features = ["debug"] }
+thalo = { features = ["macros"], path = "../../thalo/thalo" } 
+thalo-eventstoredb = { path = "../../thalo/thalo-eventstoredb", features = ["debug"] }
 tokio = { version = "1.15", features = [
   "macros",
   "rt",
