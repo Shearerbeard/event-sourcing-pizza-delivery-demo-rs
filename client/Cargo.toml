@@ -8,9 +8,9 @@ edition = "2021"
 [dependencies]
 console_error_panic_hook = "0.1.7"
 console_log = "0.2.0"
-chrono = "0.4.19"
+chrono = { version = "0.4.19", features = ["serde"] }
 log = "0.4.14"
 reqwasm = "0.4.1"
-serde = "1.0.136"
+serde = { version =  "1.0.136", features = ["derive"]}
 sycamore = { version = "0.8.0-beta.3", features = ["suspense"] }
 sycamore-router = "0.8.0-beta.3"

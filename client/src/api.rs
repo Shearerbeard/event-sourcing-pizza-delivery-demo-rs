@@ -15,6 +15,7 @@ pub struct OrderView {
     pub sub_total: i64,
     pub tax: i64,
     pub total: i64,
+    pub last_modified: DateTime<Utc>,
     pub position: usize,
 }
 
