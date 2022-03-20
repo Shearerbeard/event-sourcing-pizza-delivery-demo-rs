@@ -41,7 +41,7 @@ async fn main() -> std::io::Result<()> {
             let ee = event_data
                 .as_json::<ESDBEventPayload>()
                 .unwrap()
-                .event_envelope::<Order>(event_data.revision as usize)
+                .into_event_envelope::<Order>(event_data.revision as usize)
                 .unwrap();
             println!("--------------------------------------");
             println!("Received new envelope! \r\n {:?}", ee);
